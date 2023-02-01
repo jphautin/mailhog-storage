@@ -38,7 +38,7 @@ func (memory *InMemory) Count() int {
 }
 
 // Search finds messages matching the query
-func (memory *InMemory) Search(kind, query string, start, limit int) (*data.Messages, int, error) {
+func (memory *InMemory) Search(kind, query string, start, limit int, field, order string) (*data.Messages, int, error) {
 	// FIXME needs optimising, or replacing with a proper db!
 	query = strings.ToLower(query)
 	var filteredMessages = make([]*data.Message, 0)
@@ -124,11 +124,12 @@ func (memory *InMemory) Search(kind, query string, start, limit int) (*data.Mess
 	}
 
 	msgs := data.Messages(messages)
+	sortMessages(msgs, field, order)
 	return &msgs, len(filteredMessages), nil
 }
 
 // List lists stored messages by index
-func (memory *InMemory) List(start int, limit int) (*data.Messages, error) {
+func (memory *InMemory) List(start int, limit int, field, order string) (*data.Messages, error) {
 	var messages = make([]data.Message, 0)
 
 	if len(memory.Messages) == 0 || start > len(memory.Messages) {
@@ -156,6 +157,7 @@ func (memory *InMemory) List(start int, limit int) (*data.Messages, error) {
 	}
 
 	msgs := data.Messages(messages)
+	sortMessages(msgs, field, order)
 	return &msgs, nil
 }
 

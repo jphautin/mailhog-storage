@@ -1,10 +1,10 @@
 package storage
 
 import (
-	"log"
 	"github.com/mailhog/data"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 )
 
 // MongoDB represents MongoDB backed storage backend
@@ -49,17 +49,22 @@ func (mongo *MongoDB) Count() int {
 }
 
 // Search finds messages matching the query
-func (mongo *MongoDB) Search(kind, query string, start, limit int) (*data.Messages, int, error) {
+func (mongo *MongoDB) Search(kind, query string, start, limit int, sortingField, sortingOrder string) (*data.Messages, int, error) {
 	messages := &data.Messages{}
 	var count = 0
 	var field = "raw.data"
 	switch kind {
-		case "to":
-			field = "raw.to"
-		case "from":
-			field = "raw.from"
+	case "to":
+		field = "raw.to"
+	case "from":
+		field = "raw.from"
 	}
-	err := mongo.Collection.Find(bson.M{field: bson.RegEx{Pattern: query, Options: "i"}}).Skip(start).Limit(limit).Sort("-created").Select(bson.M{
+	sorting := "-"
+	if sortingOrder != "desc" {
+		sorting = "+"
+	}
+	sorting = sorting + sortingField
+	err := mongo.Collection.Find(bson.M{field: bson.RegEx{Pattern: query, Options: "i"}}).Skip(start).Limit(limit).Sort(sorting).Select(bson.M{
 		"id":              1,
 		"_id":             1,
 		"from":            1,
@@ -79,9 +84,14 @@ func (mongo *MongoDB) Search(kind, query string, start, limit int) (*data.Messag
 }
 
 // List returns a list of messages by index
-func (mongo *MongoDB) List(start int, limit int) (*data.Messages, error) {
+func (mongo *MongoDB) List(start int, limit int, sortingField, sortingOrder string) (*data.Messages, error) {
 	messages := &data.Messages{}
-	err := mongo.Collection.Find(bson.M{}).Skip(start).Limit(limit).Sort("-created").Select(bson.M{
+	sorting := "-"
+	if sortingOrder != "desc" {
+		sorting = "+"
+	}
+	sorting = sorting + sortingField
+	err := mongo.Collection.Find(bson.M{}).Skip(start).Limit(limit).Sort(sorting).Select(bson.M{
 		"id":              1,
 		"_id":             1,
 		"from":            1,

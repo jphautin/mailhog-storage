@@ -61,7 +61,7 @@ func (maildir *Maildir) Count() int {
 }
 
 // Search finds messages matching the query
-func (maildir *Maildir) Search(kind, query string, start, limit int) (*data.Messages, int, error) {
+func (maildir *Maildir) Search(kind, query string, start, limit int, field, order string) (*data.Messages, int, error) {
 	query = strings.ToLower(query)
 	var filteredMessages = make([]data.Message, 0)
 
@@ -120,11 +120,12 @@ func (maildir *Maildir) Search(kind, query string, start, limit int) (*data.Mess
 	}
 
 	msgs := data.Messages(filteredMessages)
+	sortMessages(msgs, field, order)
 	return &msgs, len(filteredMessages), nil
 }
 
 // List lists stored messages by index
-func (maildir *Maildir) List(start, limit int) (*data.Messages, error) {
+func (maildir *Maildir) List(start, limit int, field, order string) (*data.Messages, error) {
 	log.Println("Listing messages in", maildir.Path)
 	messages := make([]data.Message, 0)
 
@@ -154,6 +155,7 @@ func (maildir *Maildir) List(start, limit int) (*data.Messages, error) {
 
 	log.Printf("Found %d messages", len(messages))
 	msgs := data.Messages(messages)
+	sortMessages(msgs, field, order)
 	return &msgs, nil
 }
 

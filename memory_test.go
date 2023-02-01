@@ -21,7 +21,7 @@ func TestStore(t *testing.T) {
 	for i := 0; i < 25; i++ {
 		go func(i int) {
 			msg := &data.Message{
-				ID:      data.MessageID(i),
+				ID:      data.MessageID(rune(i)),
 				Created: time.Now(),
 			}
 			storage.Store(msg)
@@ -43,7 +43,7 @@ func TestDeleteAll(t *testing.T) {
 	}
 
 	for i := 0; i < 25; i++ {
-		storage.Store(&data.Message{ID: data.MessageID(i), Created: time.Now()})
+		storage.Store(&data.Message{ID: data.MessageID(rune(i)), Created: time.Now()})
 	}
 
 	if storage.Count() != 25 {
