@@ -20,22 +20,40 @@ type Storage interface {
 func sortMessages(messages []data.Message, field, order string) {
 	if field == "time" {
 		sort.SliceStable(messages, func(i, j int) bool {
-			return messages[i].Created.After(messages[j].Created)
+			var comparator = messages[i].Created.Before
+			if order == "desc" {
+				comparator = messages[i].Created.After
+			}
+			return comparator(messages[j].Created)
 		})
 	}
 	if field == "size" {
 		sort.SliceStable(messages, func(i, j int) bool {
-			return len(messages[i].Raw.Data) > len(messages[j].Raw.Data)
+			if order == "desc" {
+				return len(messages[i].Raw.Data) > len(messages[j].Raw.Data)
+			} else {
+				return len(messages[i].Raw.Data) < len(messages[j].Raw.Data)
+			}
 		})
 	}
 	if field == "to" {
 		sort.SliceStable(messages, func(i, j int) bool {
-			return strings.Compare(recipients(messages[i]), recipients(messages[j])) >= 0
+			var comparison = strings.Compare(recipients(messages[i]), recipients(messages[j]))
+			if order == "desc" {
+				return comparison >= 0
+			} else {
+				return comparison <= 0
+			}
 		})
 	}
 	if field == "from" {
 		sort.SliceStable(messages, func(i, j int) bool {
-			return strings.Compare(sender(messages[i]), sender(messages[j])) >= 0
+			var comparison = strings.Compare(sender(messages[i]), sender(messages[j]))
+			if order == "desc" {
+				return comparison >= 0
+			} else {
+				return comparison <= 0
+			}
 		})
 	}
 }
