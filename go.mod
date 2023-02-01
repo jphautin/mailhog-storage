@@ -1,4 +1,4 @@
-module github.com/jphautin/storage
+module github.com/jphautin/mailhog-storage
 
 go 1.19
 
